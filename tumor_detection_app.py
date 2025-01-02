@@ -4,6 +4,7 @@ import numpy as np
 import pandas as pd
 import base64
 import os
+%pip install h5py
 import h5py
 import matplotlib.pyplot as plt
 
