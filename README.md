@@ -39,4 +39,4 @@ Bu projenin amacı, beyin MR görüntülerini analiz ederek tümör olup olmadı
 1. Gerekli kütüphaneleri yüklemek için terminalde aşağıdaki komutu çalıştırın:
    ```bash
    pip install -r requirements.txt
-![image](https://github.com/user-attachments/assets/e9cef57b-25dd-4846-9c8d-dd09a5800762)
+
