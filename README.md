@@ -1,9 +1,5 @@
-# Tümör Tespit Sistemi
-
-Bu uygulama, MR görüntüleri üzerinden tümör tespiti ve analiz yapmaktadır. Streamlit kullanılarak geliştirilmiş bir web uygulamasıdır.
-
 ---
-title: Tumor Dedection
+title: Tümör Tespit Sistemi
 emoji: 🧠
 colorFrom: blue
 colorTo: green
@@ -13,6 +9,10 @@ app_file: app.py
 pinned: false
 license: MIT
 ---
+
+# Tümör Tespit Sistemi
+
+Bu uygulama, MR görüntüleri üzerinden tümör tespiti ve analiz yapmaktadır. Streamlit kullanılarak geliştirilmiş bir web uygulamasıdır.
 
 ## Özellikler
 
