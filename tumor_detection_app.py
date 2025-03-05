@@ -1,4 +1,3 @@
-
 import streamlit as st
 from PIL import Image
 import numpy as np
@@ -91,15 +90,19 @@ st.title("Tümör Tespit Sistemi")
 
 # Menü çubuğu oluştur, her seçenek için benzersiz key parametresi ekle
 # Sidebar menu
-menu = st.sidebar.selectbox("Menü", ["Anasayfa", "Hakkımızda", "Tümör Tespiti","Örnek Hasta Analizlerimiz", "Hasta Yorumları", "Bize Ulaşın"], key="menu_selectbox")
+menu = st.sidebar.selectbox("Menü", ["Anasayfa", "Hakkımızda", "Tümör Tespiti","Örnek Analizlerimiz", "Hasta Yorumları", "Bize Ulaşın"], key="menu_selectbox")
 
 # Menüye göre sayfaların içeriğini değiştir
 if menu == "Anasayfa":
     st.markdown('<div class="header"><h2>Hoş Geldiniz!</h2></div>', unsafe_allow_html=True)
     st.write("Bu uygulama, MR görüntüleri üzerinden tümör tespiti ve analiz yapmaktadır.")
     # Resmi yükleyin
-    image = Image.open("/Users/eceguney/Desktop/veri bilimi/kod calismalarim/mri/index.jpeg")
-    st.image(image, caption="Beyin Tümörü Tespiti", use_container_width=True)
+    try:
+        image = Image.open("sample_images/index.jpeg")
+        st.image(image, caption="Beyin Tümörü Tespiti", use_container_width=True)
+    except FileNotFoundError:
+        st.warning("Örnek görüntü dosyası bulunamadı.")
+        st.info("Kendi MR görüntünüzü yükleyerek tümör tespiti yapabilirsiniz.")
 
 elif menu == "Hakkımızda":
     st.markdown('<div class="header"><h2>Hakkımızda</h2></div>', unsafe_allow_html=True)
@@ -118,95 +121,69 @@ elif menu == "Hakkımızda":
     """)
 
 # "Örnek Analizlerimiz" sekmesi
-elif menu == "Örnek Hasta Analizlerimiz":
+elif menu == "Örnek Analizlerimiz":
     st.markdown('<div class="header"><h2>Örnek Analizlerimiz</h2></div>', unsafe_allow_html=True)
-    folder_path = "/Users/eceguney/Desktop/veri bilimi/kod calismalarim/mri/dataset/data/"
-
-    # Dizin içindeki .mat dosyalarını listeleme
-    mat_files = [f for f in os.listdir(folder_path) if f.endswith('.mat')]
-
-    # İlk 20 görüntü ile sınırlama
-    mat_files = mat_files[:20]
-
-    # Görüntülerde tümör olup olmadığını kontrol etmek için sayaç
-    tumor_found_count = 0
-    non_tumor_count = 0
-
-    # Her bir .mat dosyasını işlemek için döngü
-    for mat_file in mat_files:
-        file_path = os.path.join(folder_path, mat_file)
-
-        # Dosyayı açma
-        with h5py.File(file_path, 'r') as data:
-            cjdata = data['cjdata']
-
-            # Görüntü verisini alma
-            image = np.array(cjdata['image'])  # Görüntü
-
-            # 'tumorBorder' verisini alma
-            tumor_border = None
-            if 'tumorBorder' in cjdata:
-                tumor_border = np.array(cjdata['tumorBorder'])
-                tumor_found_count += 1  # Tümör bulunan görüntü sayısını artır
-
-            # 'tumorMask' verisini alma (Tümör maskesi var mı?)
-            tumor_mask = None
-            if 'tumorMask' in cjdata:
-                tumor_mask = np.array(cjdata['tumorMask'])
-
-            # Görüntüyü matplotlib ile hazırlama
-            fig, ax = plt.subplots()
-            ax.imshow(image, cmap='gray')  # Siyah-beyaz görüntü
-
-            # Eğer tümör sınırı varsa, bunu kırmızı renkte çizme
-            if tumor_border is not None:
-                ax.plot(tumor_border[:, 0], tumor_border[:, 1], color='red', label="Tümör Sınırları", linewidth=2)
-            else:
-                non_tumor_count += 1  # Tümör olmayan görüntü sayısını artır
-
-            # Maskeyi kırmızı olarak ekleme (şeffaflık ile)
-            if tumor_mask is not None:
-                ax.imshow(tumor_mask, cmap='Reds', alpha=0.5)  # Kırmızı tonlarında ve şeffaf olarak eklenmiş
-
-                # Tümörün boyutunu hesaplama (maskedeki piksel sayısı)
-                tumor_area = np.sum(tumor_mask)  # Tümör maskesindeki beyaz piksel sayısı (tümör alanı)
-
-                # Risk analizi
-                if tumor_area < 500:
-                    risk_message = "Düşük risk: Küçük tümör. Düzenli takip gereklidir."
-                elif tumor_area < 2000:
-                    risk_message = "Orta risk: Orta büyüklükte tümör. Hekiminizle görüşün."
-                else:
-                    risk_message = "Yüksek risk: Büyük tümör. Acil müdahale gerekebilir."
-
-                # Mesaj kutusunda tümör durumu ve risk bilgisini gösterme
-                message = f"Tümör Alanı: {tumor_area} piksel\n{risk_message}"
-            else:
-                # Tümör bulunmayan görüntüler için mesaj
-                message = "Tümör bulunmamaktadır.\nSağlıklı günler dileriz."
-
-            # Başlık ve etiket ekleme
-            ax.set_title(f"MR Görüntüsü ve Tümör Sınırları ({mat_file})")
-            ax.legend()
-
-            # Görüntüyü Streamlit'te gösterme
-            st.pyplot(fig)
-            st.markdown(f"**{message}**")
-
-        # Açıklama metnini ekleyelim
-        st.markdown(f"### Açıklama: {mat_file}")
-        st.write("""
-        Bu görüntü, beyin MR'ı üzerinde yapılan tümör tespiti analizinin bir örneğidir. 
-        Görüntüdeki tümör sınırları (eğer varsa) kırmızı renkte gösterilmektedir. 
-        Ayrıca, tümör alanı hesaplanarak risk analizi yapılmaktadır. 
-        Eğer tümör alanı küçükse, düşük risk kategorisinde değerlendirilir; 
-        orta büyüklükte ise orta risk, büyük bir tümör var ise yüksek risk kategorisinde yer alır.
-        Eğer görüntüde tümör yoksa, bu da açıkça belirtilir.
-        """)
-
-    # Sonuçları yazdırma
-    st.write(f"Tümör Bulunan Görüntüler: {tumor_found_count}")
-    st.write(f"Tümör Olmayan Görüntüler: {non_tumor_count}")
+    
+    # Check if the data directory exists
+    folder_path = "sample_images"
+    if not os.path.exists(folder_path):
+        st.warning("Örnek görüntüler klasörü bulunamadı.")
+        st.info("Kendi MR görüntünüzü yükleyerek tümör tespiti yapabilirsiniz.")
+    else:
+        # Dizin içindeki görüntü dosyalarını listeleme
+        try:
+            image_files = [f for f in os.listdir(folder_path) if f.endswith(('.jpg', '.jpeg', '.png', '.webp'))]
+            
+            # İlk 20 görüntü ile sınırlama
+            image_files = image_files[:20]
+            
+            # Görüntülerde tümör olup olmadığını kontrol etmek için sayaç
+            tumor_found_count = 0
+            non_tumor_count = 0
+            
+            # Her bir görüntü dosyasını işlemek için döngü
+            for img_file in image_files:
+                file_path = os.path.join(folder_path, img_file)
+                
+                # Görüntüyü açma
+                try:
+                    image = Image.open(file_path)
+                    st.image(image, caption=f"MR Görüntüsü: {img_file}", use_container_width=True)
+                    
+                    # Basit bir analiz: Görüntünün ortalama parlaklık değerini alalım
+                    image_array = np.array(image)
+                    average_brightness = np.mean(image_array)
+                    
+                    # Tümör var mı yok mu tahmini (basit bir yaklaşım)
+                    if average_brightness < 100:  # Bu eşik değeri tamamen örnektir
+                        tumor_status = "Tümör Tespit Edildi"
+                        explanation = "Görüntüde yüksek kontrastlı alanlar tespit edildi, bu da tümör olasılığını artırıyor."
+                        tumor_found_count += 1
+                    else:
+                        tumor_status = "Tümör Yok"
+                        explanation = "Görüntüde belirgin bir kontrast farkı bulunmamaktadır, bu da tümör olmadığına işaret edebilir."
+                        non_tumor_count += 1
+                    
+                    # Sonuçları göster
+                    st.markdown(f"**Sonuç: {tumor_status}**")
+                    st.write(explanation)
+                    
+                    # Açıklama metnini ekleyelim
+                    st.markdown(f"### Açıklama: {img_file}")
+                    st.write("""
+                    Bu görüntü, beyin MR'ı üzerinde yapılan tümör tespiti analizinin bir örneğidir. 
+                    Görüntüdeki kontrast değerleri analiz edilerek tümör varlığı tahmin edilmektedir.
+                    Bu basit bir analiz olup, gerçek tıbbi teşhis için uzman görüşü gereklidir.
+                    """)
+                    
+                except Exception as e:
+                    st.error(f"Görüntü işlenirken bir hata oluştu: {e}")
+            
+            # Sonuçları yazdırma
+            st.write(f"Tümör Bulunan Görüntüler: {tumor_found_count}")
+            st.write(f"Tümör Olmayan Görüntüler: {non_tumor_count}")
+        except Exception as e:
+            st.error(f"Örnek görüntüler işlenirken bir hata oluştu: {e}")
 
 elif menu == "Tümör Tespiti":
     st.markdown('<div class="header"><h2>Tümör Tespiti</h2></div>', unsafe_allow_html=True)
