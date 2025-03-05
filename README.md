@@ -2,6 +2,18 @@
 
 Bu uygulama, MR görüntüleri üzerinden tümör tespiti ve analiz yapmaktadır. Streamlit kullanılarak geliştirilmiş bir web uygulamasıdır.
 
+---
+title: Tumor Dedection
+emoji: 🧠
+colorFrom: blue
+colorTo: green
+sdk: streamlit
+sdk_version: 1.40.2
+app_file: app.py
+pinned: false
+license: MIT
+---
+
 ## Özellikler
 
 - MR görüntülerinde tümör tespiti
@@ -85,4 +97,6 @@ Bu projenin amacı, beyin MR görüntülerini analiz ederek tümör olup olmadı
 1. Gerekli kütüphaneleri yüklemek için terminalde aşağıdaki komutu çalıştırın:
    ```bash
    pip install -r requirements.txt
+   ```
 
+Check out the configuration reference at https://huggingface.co/docs/hub/spaces-config-reference
