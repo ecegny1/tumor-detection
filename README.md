@@ -7,8 +7,10 @@ sdk: streamlit
 sdk_version: 1.40.2
 app_file: app.py
 pinned: false
-license: MIT
+license: mit
 ---
+
+Check out the configuration reference at https://huggingface.co/docs/hub/spaces-config-reference
 
 # Tümör Tespit Sistemi
 
@@ -98,5 +100,3 @@ Bu projenin amacı, beyin MR görüntülerini analiz ederek tümör olup olmadı
    ```bash
    pip install -r requirements.txt
    ```
-
-Check out the configuration reference at https://huggingface.co/docs/hub/spaces-config-reference
