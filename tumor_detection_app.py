@@ -2,10 +2,7 @@ import streamlit as st
 from PIL import Image
 import numpy as np
 import pandas as pd
-import base64
 import os
-import h5py
-import matplotlib.pyplot as plt
 
 # Streamlit ile HTML ve CSS ekleme
 st.markdown(f"""
@@ -20,9 +17,6 @@ st.markdown(f"""
             background-color: rgba(255, 255, 255, 0.8);  /* Beyaz renk, %80 şeffaflık */
             padding: 20px;
             border-radius: 10px;
-            background-image: url("/Users/eceguney/Desktop/background.PNG");  /* Arka plan resminin yolu */
-            background-position: center;
-            background-repeat: no-repeat;
             background-size: cover;
             height: 100vh;  /* Sayfa yüksekliği */
         }}
@@ -45,14 +39,6 @@ st.markdown(f"""
 
         .sidebar .sidebar-content {{
             background-color: #f4f4f9;
-        }}
-        .section-title {{
-            color: #4CAF50;
-            font-size: 30px;
-            text-align: center;
-            margin: 20px 0;
-            border-bottom: 2px solid #4CAF50;
-            padding-bottom: 5px;
         }}
 
         .content-box {{
@@ -88,9 +74,40 @@ st.markdown(f"""
 # Ana başlık
 st.title("Tümör Tespit Sistemi")
 
+# Tümör tespiti için eşik değeri
+TUMOR_BRIGHTNESS_THRESHOLD = 100
+
 # Menü çubuğu oluştur, her seçenek için benzersiz key parametresi ekle
 # Sidebar menu
 menu = st.sidebar.selectbox("Menü", ["Anasayfa", "Hakkımızda", "Tümör Tespiti","Örnek Analizlerimiz", "Hasta Yorumları", "Bize Ulaşın"], key="menu_selectbox")
+
+# Tümör tespiti fonksiyonu
+def detect_tumor(image_array):
+    """
+    Görüntü dizisini analiz ederek tümör tespiti yapar
+    
+    Args:
+        image_array: Numpy array olarak görüntü
+        
+    Returns:
+        tumor_status: Tümör durumu (string)
+        explanation: Açıklama metni (string)
+        has_tumor: Tümör var mı? (boolean)
+    """
+    # Görüntünün ortalama parlaklık değerini hesapla
+    average_brightness = np.mean(image_array)
+    
+    # Tümör var mı yok mu tahmini (basit bir yaklaşım)
+    if average_brightness < TUMOR_BRIGHTNESS_THRESHOLD:  # Düşük parlaklık tümör olasılığını artırır
+        tumor_status = "Tümör Tespit Edildi"
+        explanation = "Görüntüde yüksek kontrastlı alanlar tespit edildi, bu da tümör olasılığını artırıyor."
+        has_tumor = True
+    else:
+        tumor_status = "Tümör Yok"
+        explanation = "Görüntüde belirgin bir kontrast farkı bulunmamaktadır, bu da tümör olmadığına işaret edebilir."
+        has_tumor = False
+        
+    return tumor_status, explanation, has_tumor
 
 # Menüye göre sayfaların içeriğini değiştir
 if menu == "Anasayfa":
@@ -150,18 +167,14 @@ elif menu == "Örnek Analizlerimiz":
                     image = Image.open(file_path)
                     st.image(image, caption=f"MR Görüntüsü: {img_file}", use_container_width=True)
                     
-                    # Basit bir analiz: Görüntünün ortalama parlaklık değerini alalım
+                    # Görüntü analizi
                     image_array = np.array(image)
-                    average_brightness = np.mean(image_array)
+                    tumor_status, explanation, has_tumor = detect_tumor(image_array)
                     
-                    # Tümör var mı yok mu tahmini (basit bir yaklaşım)
-                    if average_brightness < 100:  # Bu eşik değeri tamamen örnektir
-                        tumor_status = "Tümör Tespit Edildi"
-                        explanation = "Görüntüde yüksek kontrastlı alanlar tespit edildi, bu da tümör olasılığını artırıyor."
+                    # Sayaçları güncelle
+                    if has_tumor:
                         tumor_found_count += 1
                     else:
-                        tumor_status = "Tümör Yok"
-                        explanation = "Görüntüde belirgin bir kontrast farkı bulunmamaktadır, bu da tümör olmadığına işaret edebilir."
                         non_tumor_count += 1
                     
                     # Sonuçları göster
@@ -200,19 +213,9 @@ elif menu == "Tümör Tespiti":
             image = Image.open(uploaded_file)
             st.image(image, caption="Yüklenen MR Görüntüsü", use_container_width=True)
 
-            # Görüntü üzerinde basit bir analiz yapalım (örneğin, renk tonlarıyla basit bir tümör varlığı kontrolü)
+            # Görüntü analizi
             image_array = np.array(image)
-
-            # Örnek basit analiz: Görüntünün ortalama parlaklık değerini alalım
-            average_brightness = np.mean(image_array)
-
-            # Tümör var mı yok mu tahmini (basit bir yaklaşım)
-            if average_brightness < 100:  # Bu eşik değeri tamamen örnektir, daha gelişmiş bir analiz için değiştirilmelidir.
-                tumor_status = "Tümör Tespit Edildi"
-                explanation = "Görüntüde yüksek kontrastlı alanlar tespit edildi, bu da tümör olasılığını artırıyor."
-            else:
-                tumor_status = "Tümör Yok"
-                explanation = "Görüntüde belirgin bir kontrast farkı bulunmamaktadır, bu da tümör olmadığına işaret edebilir."
+            tumor_status, explanation, _ = detect_tumor(image_array)
 
             # Sonuçları göster
             st.markdown(f"**Sonuç: {tumor_status}**")
