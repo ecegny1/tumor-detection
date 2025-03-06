@@ -1,4 +1,64 @@
-# TUMOR DETECTION ANALYSIS SYSTEM
+---
+title: Tümör Tespit Sistemi
+emoji: 🧠
+colorFrom: blue
+colorTo: green
+sdk: streamlit
+sdk_version: 1.40.2
+app_file: app.py
+pinned: false
+license: mit
+---
+
+Check out the configuration reference at https://huggingface.co/docs/hub/spaces-config-reference
+
+# Tümör Tespit Sistemi
+
+Bu uygulama, MR görüntüleri üzerinden tümör tespiti ve analiz yapmaktadır. Streamlit kullanılarak geliştirilmiş bir web uygulamasıdır.
+
+## Özellikler
+
+- MR görüntülerinde tümör tespiti
+- Örnek analizler
+- Hasta bilgilerinin kaydedilmesi
+- Kullanıcı dostu arayüz
+
+## Kullanım
+
+Uygulama, sol taraftaki menü çubuğu ile farklı bölümlere erişim sağlar:
+
+1. **Anasayfa**: Uygulamanın genel tanıtımı
+2. **Hakkımızda**: Uygulama ve ekip hakkında bilgiler
+3. **Tümör Tespiti**: MR görüntüsü yükleyerek tümör analizi yapma
+4. **Örnek Analizlerimiz**: Örnek MR görüntüleri ve analizleri
+5. **Hasta Yorumları**: Kullanıcı yorumları ve geri bildirimleri
+6. **Bize Ulaşın**: İletişim bilgileri ve iletişim formu
+
+## Teknik Detaylar
+
+Uygulama aşağıdaki teknolojileri kullanmaktadır:
+
+- Python 3.9+
+- Streamlit
+- Pillow (PIL)
+- NumPy
+- Pandas
+- Matplotlib
+- OpenCV
+- TensorFlow
+
+## Kurulum
+
+Uygulamayı yerel olarak çalıştırmak için:
+
+```bash
+pip install -r requirements.txt
+streamlit run tumor_detection_app.py
+```
+
+## Lisans
+
+Bu proje MIT lisansı altında lisanslanmıştır.
 
 # Beyin Tümörü Tespit Projesi
 
@@ -39,4 +99,4 @@ Bu projenin amacı, beyin MR görüntülerini analiz ederek tümör olup olmadı
 1. Gerekli kütüphaneleri yüklemek için terminalde aşağıdaki komutu çalıştırın:
    ```bash
    pip install -r requirements.txt
-
+   ```
